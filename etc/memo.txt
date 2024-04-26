@@ -1,0 +1,17 @@
+# first time
+cd /root
+mkdir -p ${FTPPATH}/driver
+mkdir -p ${FTPPATH}/user
+ftpget -u ${FTPUSER} -p ${FTPPASS} 10.10.0.2 ${FTPPATH}/driver/qemuedu.ko
+ftpget -u ${FTPUSER} -p ${FTPPASS} 10.10.0.2 ${FTPPATH}/user/rw
+insmod ${FTPPATH}/driver/qemuedu.ko dma_mode=1
+mdev -s
+chmod 755 ${FTPPATH}/user/rw
+./${FTPPATH}/user/rw /dev/qemuedu_reg /dev/qemuedu_dma
+
+# after second time
+rmmod qemuedu
+ftpget -u ${FTPUSER} -p ${FTPPASS} 10.10.0.2 ${FTPPATH}/driver/qemuedu.ko
+ftpget -u ${FTPUSER} -p ${FTPPASS} 10.10.0.2 ${FTPPATH}/user/rw
+insmod ${FTPPATH}/driver/qemuedu.ko dma_mode=1
+./${FTPPATH}/user/rw /dev/qemuedu_reg /dev/qemuedu_dma
