@@ -310,10 +310,10 @@ static ssize_t read_dma_normal(struct file *file, char __user *buf, size_t len, 
 	qcdev->dma.state = DMA_STATE_NEW;
 
 	iowrite32((DMA_BASE + *off)         & 0xffffffff, qcdev_reg->bar + IO_DMA_SRC);
-	iowrite32(((DMA_BASE + *off) >> 32) & 0xffffffff, qcdev_reg->bar + IO_DMA_SRC + 4);
+//	iowrite32(((DMA_BASE + *off) >> 32) & 0xffffffff, qcdev_reg->bar + IO_DMA_SRC + 4);
 
 	iowrite32(qcdev->dma.handle         & 0xffffffff, qcdev_reg->bar + IO_DMA_DST);
-	iowrite32((qcdev->dma.handle >> 32) & 0xffffffff, qcdev_reg->bar + IO_DMA_DST + 4);
+//	iowrite32((qcdev->dma.handle >> 32) & 0xffffffff, qcdev_reg->bar + IO_DMA_DST + 4);
 
 	iowrite32(len, qcdev_reg->bar + IO_DMA_CNT);
 	iowrite32(DMA_START | DMA_FROM_DEV | DMA_IRQ, qcdev_reg->bar + IO_DMA_CMD);
@@ -381,10 +381,10 @@ static ssize_t write_dma_normal(struct file *file, const char __user *buf, size_
 	}
 
 	iowrite32(qcdev->dma.handle         & 0xffffffff, qcdev->qpdev->cdev_reg.bar + IO_DMA_SRC);
-	iowrite32((qcdev->dma.handle >> 32) & 0xffffffff, qcdev->qpdev->cdev_reg.bar + IO_DMA_SRC + 4);
+//	iowrite32((qcdev->dma.handle >> 32) & 0xffffffff, qcdev->qpdev->cdev_reg.bar + IO_DMA_SRC + 4);
 
 	iowrite32((DMA_BASE + *off)         & 0xffffffff, qcdev_reg->bar + IO_DMA_DST);
-	iowrite32(((DMA_BASE + *off) >> 32) & 0xffffffff, qcdev_reg->bar + IO_DMA_DST + 4);
+//	iowrite32(((DMA_BASE + *off) >> 32) & 0xffffffff, qcdev_reg->bar + IO_DMA_DST + 4);
 
 	iowrite32(len, qcdev_reg->bar + IO_DMA_CNT);
 	iowrite32(DMA_START | DMA_IRQ, qcdev_reg->bar + IO_DMA_CMD);
@@ -461,10 +461,10 @@ static ssize_t read_dma_single_page(struct file *file, char __user *buf, size_t 
 	dev_dbg(&(pdev->dev), "dma_map_page dma_addr=%llx len=%lx\n", dma_addr, len);
 
 	iowrite32((DMA_BASE + *off)         & 0xffffffff, qcdev_reg->bar + IO_DMA_SRC);
-	iowrite32(((DMA_BASE + *off) >> 32) & 0xffffffff, qcdev_reg->bar + IO_DMA_SRC + 4);
+//	iowrite32(((DMA_BASE + *off) >> 32) & 0xffffffff, qcdev_reg->bar + IO_DMA_SRC + 4);
 
 	iowrite32(dma_addr         & 0xffffffff, qcdev_reg->bar + IO_DMA_DST);
-	iowrite32((dma_addr >> 32) & 0xffffffff, qcdev_reg->bar + IO_DMA_DST + 4);
+//	iowrite32((dma_addr >> 32) & 0xffffffff, qcdev_reg->bar + IO_DMA_DST + 4);
 
 	iowrite32(len, qcdev_reg->bar + IO_DMA_CNT);
 	iowrite32(DMA_START | DMA_FROM_DEV | DMA_IRQ, qcdev_reg->bar + IO_DMA_CMD);
@@ -547,10 +547,10 @@ static ssize_t write_dma_single_page(struct file *file, const char __user *buf, 
 	dev_dbg(&(pdev->dev), "dma_map_page dma_addr=%llx len=%lx\n", dma_addr, len);
 
 	iowrite32(dma_addr         & 0xffffffff, qcdev->qpdev->cdev_reg.bar + IO_DMA_SRC);
-	iowrite32((dma_addr >> 32) & 0xffffffff, qcdev->qpdev->cdev_reg.bar + IO_DMA_SRC + 4);
+//	iowrite32((dma_addr >> 32) & 0xffffffff, qcdev->qpdev->cdev_reg.bar + IO_DMA_SRC + 4);
 
 	iowrite32((DMA_BASE + *off)         & 0xffffffff, qcdev_reg->bar + IO_DMA_DST);
-	iowrite32(((DMA_BASE + *off) >> 32) & 0xffffffff, qcdev_reg->bar + IO_DMA_DST + 4);
+//	iowrite32(((DMA_BASE + *off) >> 32) & 0xffffffff, qcdev_reg->bar + IO_DMA_DST + 4);
 
 	iowrite32(len, qcdev_reg->bar + IO_DMA_CNT);
 	iowrite32(DMA_START | DMA_IRQ, qcdev_reg->bar + IO_DMA_CMD);
@@ -782,7 +782,7 @@ static int set_dma_mask(struct pci_dev *pdev)
 		return -EINVAL;
 	}
 
-	dev_info(&(pdev->dev), "sizeof(dma_addr_t) == %ld\n", sizeof(dma_addr_t));
+#if 0
 	if (!pci_set_dma_mask(pdev, DMA_BIT_MASK(64))) {
 		dev_info(&(pdev->dev), "pci_set_dma_mask()\n");
 		dev_info(&(pdev->dev), "Using a 64-bit DMA mask.\n");
@@ -795,6 +795,12 @@ static int set_dma_mask(struct pci_dev *pdev)
 
 	} else {
 		dev_err(&(pdev->dev), "No suitable DMA possible.\n");
+		return -EINVAL;
+	}
+#endif
+	// qemuedu device supports only 28 bits (256 MiB) by default.
+	if (dma_set_mask_and_coherent(&(pdev->dev), DMA_BIT_MASK(28))) {
+		dev_err(&(pdev->dev), "No suitable DMA available\n");
 		return -EINVAL;
 	}
 
@@ -1030,7 +1036,7 @@ static int pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
 
 
 	dev_info(&(pdev->dev), "module_param dma_mode %d\n", dma_mode);
-	dev_info(&(pdev->dev), "dma_pfn_offset %lx\n", pdev->dev.dma_pfn_offset);
+//	dev_info(&(pdev->dev), "dma_pfn_offset %lx\n", pdev->dev.dma_pfn_offset);
 
 	return rv;
 
