@@ -123,6 +123,15 @@ std::vector<std::string> split(const std::string& s) {
 	return r;
 }
 
+void printhelp (void) {
+	printf("commands:\n");
+	printf("  r       : read BAR register.\n");
+	printf("  w       : write BAR register.\n");
+	printf("  rdma    : DMA from device.\n");
+	printf("  wdma    : DMA to device.\n");
+	printf("  seekdma : seek DMA position.\n");
+}
+
 bool rw (int fd_reg, int fd_dma, std::vector<std::string> &cmdlist) {
 	std::string cmd = cmdlist[0];
 	if (cmd == "r") {
@@ -278,12 +287,7 @@ bool rw (int fd_reg, int fd_dma, std::vector<std::string> &cmdlist) {
 		}
 
 	} else if (cmd == "help") {
-		printf("commands:\n");
-		printf("  r       : read BAR register.\n");
-		printf("  w       : write BAR register.\n");
-		printf("  rdma    : DMA from device.\n");
-		printf("  wdma    : DMA to device.\n");
-		printf("  seekdma : seek DMA position.\n");
+		printhelp();
 
 	} else {
 		return false;
@@ -334,6 +338,8 @@ int main(int argc, char **argv)
 		printf("0x%x\n", *((uint32_t*)off)); // 32bit read
 	}
 
+	printhelp();
+	std::cout << "console start." << std::endl;
 	std::string in;
 	while (true) {
 		std::cout << "> ";

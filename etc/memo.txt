@@ -1,4 +1,13 @@
+# FTPUSER=user
+# FTPPASS=pass
+# FTPPATH=path/to
+#            vvvvvvv
+# /home/user/path/to/driver
+#                   /user
+
 # first time
+ip addr add 10.10.0.4/24 dev eth0
+ip link set eth0 up
 cd /root
 mkdir -p ${FTPPATH}/driver
 mkdir -p ${FTPPATH}/user
