@@ -1,0 +1,13 @@
+*.so
+*.o
+*.a
+*.d
+*.ko
+*.mod
+*.mod.c
+*.cmd
+*.symvers
+*.order
+user/rw
+.clangd
+.cache
